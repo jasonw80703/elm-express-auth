@@ -57,8 +57,8 @@ router.post('/login', async (req, res) => {
 });
 
 // POST Create User
-// curl -X POST -H "Content-Type:application/json" http://localhost:3000/users -d '{"username":"juice","name":"Jason"}'
-router.post('/', async (req, res) => {
+// curl -X POST -H "Content-Type:application/json" http://localhost:3000/api/users/sign-up -d '{"username":"juice","name":"Jason"}'
+router.post('/sign-up', async (req, res) => {
   let errors = [];
   if (!req.body.username) {
     errors.push({

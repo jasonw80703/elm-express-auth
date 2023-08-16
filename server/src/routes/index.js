@@ -1,5 +1,8 @@
+import express from 'express';
 import user from './user';
 
-export default {
-  user,
-};
+const router = express.Router();
+
+router.use('/users', user)
+
+module.exports = router

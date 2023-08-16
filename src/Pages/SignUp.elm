@@ -1,5 +1,6 @@
 module Pages.SignUp exposing (Model, Msg, page)
 
+import Api.SignUp
 import Effect exposing (Effect)
 import Route exposing (Route)
 import Html exposing (Html)
@@ -13,7 +14,7 @@ import View exposing (View)
 
 
 page : Shared.Model -> Route () -> Page Model Msg
-page shared route =
+page _ _ =
     Page.new
         { init = init
         , update = update
@@ -27,7 +28,8 @@ page shared route =
 
 
 type alias Model =
-    { isSubmitting : Bool
+    { errors : List Api.SignUp.Error
+    , isSubmitting : Bool
     , name : String
     , password : String
     , username : String
@@ -36,7 +38,8 @@ type alias Model =
 
 init : () -> ( Model, Effect Msg )
 init () =
-    ( { isSubmitting = False
+    ( { errors = []
+      , isSubmitting = False
       , name = ""
       , password = ""
       , username = ""
@@ -50,8 +53,9 @@ init () =
 
 
 type Msg
-    = UserUpdatedField Field String
+    = SubmitDone (Result (List Api.SignUp.Error) Api.SignUp.Data)
     | UserSubmittedForm
+    | UserUpdatedField Field String
 
 
 type Field
@@ -63,6 +67,26 @@ type Field
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
+        SubmitDone (Ok data) ->
+            ( { model | isSubmitting = False }
+            , Effect.none
+            )
+
+        SubmitDone (Err errors) ->
+            ( { model | isSubmitting = False, errors = errors }
+            , Effect.none
+            )
+
+        UserSubmittedForm ->
+            ( { model | isSubmitting = True, errors = [] }
+            , Api.SignUp.postUser
+                { onResponse = SubmitDone
+                , username = model.username
+                , name = model.name
+                , password = model.password
+                }
+            )
+
         UserUpdatedField Name val ->
             ( { model | name = val }
             , Effect.none
@@ -78,10 +102,6 @@ update msg model =
             , Effect.none
             )
 
-        UserSubmittedForm ->
-            ( { model | isSubmitting = True }
-            , Effect.none
-            )
 
 
 
@@ -128,11 +148,14 @@ viewPage model =
 viewForm : Model -> Html Msg
 viewForm model =
     Html.form
-        [ Attr.class "box" ]
+        [ Attr.class "box"
+        , Html.Events.onSubmit UserSubmittedForm
+        ]
         [ viewUsernameInput model
         , viewNameInput model
         , viewPasswordInput model
         , viewSubmitButton model
+        , viewErrors model
         ]
 
 
@@ -209,8 +232,25 @@ viewSubmitButton model =
                 [ Attr.class "button is-link"
                 , Attr.disabled model.isSubmitting
                 , Attr.classList [ ( "is-loading", model.isSubmitting ) ]
-                , Html.Events.onClick UserSubmittedForm
                 ]
                 [ Html.text "Sign Up" ]
             ]
         ]
+
+
+viewErrors : Model -> Html Msg
+viewErrors model =
+    Html.div
+        []
+        [ Html.ul
+            [ Attr.class "notification is-danger" ]
+            (List.map viewError model.errors)
+        ]
+        |> Html.viewIf (List.length model.errors > 0)
+
+
+viewError : Api.SignUp.Error -> Html Msg
+viewError error =
+    Html.li
+        []
+        [ Html.text (Api.SignUp.errorToString error) ]

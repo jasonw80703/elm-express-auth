@@ -7,13 +7,9 @@ import models, { connectDb } from './models';
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-app.use('/users', routes.user)
+app.use('/api', routes)
 
 const eraseDatabaseOnSync = true;
 
