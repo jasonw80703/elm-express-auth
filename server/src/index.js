@@ -40,6 +40,7 @@ const createUsers = async () => {
   const user = new models.User({
     username: 'juice',
     name: 'Jason',
+    password: 'Password123',
   });
 
   await user.save();
