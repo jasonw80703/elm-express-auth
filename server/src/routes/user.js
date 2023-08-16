@@ -1,9 +1,11 @@
 import { Router } from 'express';
+import User from '../models/user';
 
 const router = Router();
 
-router.get('/', (req, res) => {
-  return res.send("Users");
+router.get('/', async (req, res) => {
+  const users = await User.find();
+  return res.status(200).json(users);
 });
 
 router.get('/:userId', (req, res) => {
