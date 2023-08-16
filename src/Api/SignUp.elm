@@ -87,10 +87,6 @@ handleHttpResponse response =
                 ]
 
         Http.BadStatus_ { statusCode } body ->
-            let
-                a =
-                    Debug.log "code" statusCode
-            in
             case Decode.decodeString errorsDecoder body of
                 Ok errors ->
                     Err errors
