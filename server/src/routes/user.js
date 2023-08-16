@@ -13,13 +13,21 @@ router.get('/:userId', async (req, res) => {
   return res.status(200).send(user);
 });
 
-// curl -X POST -H "Content-Type:application/json" http://localhost:3000/users -d '{"username":"Jason"}'
+// Create User
+// curl -X POST -H "Content-Type:application/json" http://localhost:3000/users -d '{"username":"juice","name":"Jason"}'
 router.post('/', async (req, res) => {
   let errors = [];
   if (!req.body.username) {
     errors.push({
       field: 'username',
-      message: 'Username is required.'
+      message: 'Username is required.',
+    });
+  }
+
+  if (!req.body.name) {
+    errors.push({
+      field: 'name',
+      message: 'Name is required.',
     });
   }
 

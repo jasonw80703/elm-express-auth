@@ -38,7 +38,8 @@ const seedData = async () => {
 
 const createUsers = async () => {
   const user = new models.User({
-    username: 'jason',
+    username: 'juice',
+    name: 'Jason',
   });
 
   await user.save();
