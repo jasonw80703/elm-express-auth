@@ -24,12 +24,17 @@ page =
                     ]
                 ]
             , Html.div
-                [ Attr.class "mt-3" ]
+                [ Attr.class "mt-2" ]
                 [ Html.a
-                    [ Attr.class "button is-info"
+                    [ Attr.class "button is-info mr-2"
                     , Attr.href "/sign-in"
                     ]
                     [ Html.text "Login" ]
+                , Html.a
+                    [ Attr.class "button is-primary"
+                    , Attr.href "/sign-up"
+                    ]
+                    [ Html.text "Sign Up" ]
                 ]
             ]
         ]
