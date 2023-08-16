@@ -2,12 +2,12 @@ module Pages.SignUp exposing (Model, Msg, page)
 
 import Api.SignUp
 import Effect exposing (Effect)
-import Route exposing (Route)
 import Html exposing (Html)
+import Html.Attributes as Attr
 import Html.Events
 import Html.Extra as Html
-import Html.Attributes as Attr
 import Page exposing (Page)
+import Route exposing (Route)
 import Shared
 import Shared.NavHeader as NavHeader
 import View exposing (View)
@@ -28,7 +28,8 @@ page _ _ =
 
 
 type alias Model =
-    { errors : List Api.SignUp.Error
+    { apiErrors : List Api.SignUp.Error
+    , formErrors : List String
     , isSubmitting : Bool
     , name : String
     , password : String
@@ -38,7 +39,8 @@ type alias Model =
 
 init : () -> ( Model, Effect Msg )
 init () =
-    ( { errors = []
+    ( { apiErrors = []
+      , formErrors = []
       , isSubmitting = False
       , name = ""
       , password = ""
@@ -70,21 +72,44 @@ update msg model =
         SubmitDone (Ok data) ->
             ( { model | isSubmitting = False }
             , Effect.none
+              -- TODO do something
             )
 
         SubmitDone (Err errors) ->
-            ( { model | isSubmitting = False, errors = errors }
+            ( { model | isSubmitting = False, apiErrors = errors }
             , Effect.none
             )
 
         UserSubmittedForm ->
-            ( { model | isSubmitting = True, errors = [] }
-            , Api.SignUp.postUser
-                { onResponse = SubmitDone
-                , username = model.username
-                , name = model.name
-                , password = model.password
-                }
+            let
+                validForm : Bool
+                validForm =
+                    model.username
+                        /= ""
+                        && model.name
+                        /= ""
+                        && model.password
+                        /= ""
+
+                newModel : Model
+                newModel =
+                    if validForm then
+                        { model | isSubmitting = True, apiErrors = [], formErrors = [] }
+
+                    else
+                        { model | isSubmitting = False, apiErrors = [], formErrors = [ "Please fill out all fields" ] }
+            in
+            ( newModel
+            , if validForm then
+                Api.SignUp.postUser
+                    { onResponse = SubmitDone
+                    , username = model.username
+                    , name = model.name
+                    , password = model.password
+                    }
+
+              else
+                Effect.none
             )
 
         UserUpdatedField Name val ->
@@ -101,7 +126,6 @@ update msg model =
             ( { model | username = val }
             , Effect.none
             )
-
 
 
 
@@ -155,7 +179,8 @@ viewForm model =
         , viewNameInput model
         , viewPasswordInput model
         , viewSubmitButton model
-        , viewErrors model
+        , viewFormErrors model
+        , viewApiErrors model
         ]
 
 
@@ -177,10 +202,11 @@ viewUsernameInput model =
             , Html.span
                 [ Attr.class "icon is-small is-left" ]
                 [ Html.i [ Attr.class "fas fa-user" ] [] ]
+
             -- , Html.span
             --     [ Attr.class "icon is-small is-right" ]
             --     [ Html.i [ Attr.class "fas fa-check" ] [] ]
-                    -- |> Html.viewIf username provided
+            -- |> Html.viewIf username provided
             ]
         ]
 
@@ -238,19 +264,37 @@ viewSubmitButton model =
         ]
 
 
-viewErrors : Model -> Html Msg
-viewErrors model =
+viewFormErrors : Model -> Html Msg
+viewFormErrors model =
     Html.div
         []
         [ Html.ul
             [ Attr.class "notification is-danger" ]
-            (List.map viewError model.errors)
+            (List.map
+                (\error ->
+                    Html.li
+                        []
+                        [ Html.text error ]
+                )
+                model.formErrors
+            )
         ]
-        |> Html.viewIf (List.length model.errors > 0)
+        |> Html.viewIf (List.length model.formErrors > 0)
 
 
-viewError : Api.SignUp.Error -> Html Msg
-viewError error =
+viewApiErrors : Model -> Html Msg
+viewApiErrors model =
+    Html.div
+        []
+        [ Html.ul
+            [ Attr.class "notification is-danger" ]
+            (List.map viewApiError model.apiErrors)
+        ]
+        |> Html.viewIf (List.length model.apiErrors > 0)
+
+
+viewApiError : Api.SignUp.Error -> Html Msg
+viewApiError error =
     Html.li
         []
         [ Html.text (Api.SignUp.errorToString error) ]
