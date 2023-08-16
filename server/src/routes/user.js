@@ -74,7 +74,23 @@ router.post('/', async (req, res) => {
     });
   }
 
+  if (!req.body.password) {
+    errors.push({
+      field: 'password',
+      message: 'Password is required.',
+    });
+  }
+
   if (errors.length > 0) { return res.status(400).json({ errors }) }
+
+  if (await User.findOne({ username: req.body.username })) {
+    return res.status(400).json({
+      errors: [{
+        field: 'username',
+        message: 'Username already exists.',
+      }]
+    });
+  }
 
   const user = new User({
     ...req.body
