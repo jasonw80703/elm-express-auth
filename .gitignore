@@ -3,5 +3,7 @@
 /.env
 /elm-stuff
 /node_modules
+server/.env
+server/node_modules/*
 .DS_Store
 *.pem
