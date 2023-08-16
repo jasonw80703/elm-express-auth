@@ -1,6 +1,5 @@
 module Shared.NavHeader exposing (view)
 
-import Route exposing (Route)
 import Html exposing (Html)
 import Html.Attributes as Attr
 

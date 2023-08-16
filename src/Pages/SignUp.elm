@@ -3,6 +3,7 @@ module Pages.SignUp exposing (Model, Msg, page)
 import Effect exposing (Effect)
 import Route exposing (Route)
 import Html exposing (Html)
+import Html.Events
 import Html.Extra as Html
 import Html.Attributes as Attr
 import Page exposing (Page)
@@ -26,12 +27,20 @@ page shared route =
 
 
 type alias Model =
-    {}
+    { isSubmitting : Bool
+    , name : String
+    , password : String
+    , username : String
+    }
 
 
 init : () -> ( Model, Effect Msg )
 init () =
-    ( {}
+    ( { isSubmitting = False
+      , name = ""
+      , password = ""
+      , username = ""
+      }
     , Effect.none
     )
 
@@ -41,14 +50,36 @@ init () =
 
 
 type Msg
-    = ExampleMsgReplaceMe
+    = UserUpdatedField Field String
+    | UserSubmittedForm
+
+
+type Field
+    = Name
+    | Password
+    | Username
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        ExampleMsgReplaceMe ->
-            ( model
+        UserUpdatedField Name val ->
+            ( { model | name = val }
+            , Effect.none
+            )
+
+        UserUpdatedField Password val ->
+            ( { model | password = val }
+            , Effect.none
+            )
+
+        UserUpdatedField Username val ->
+            ( { model | username = val }
+            , Effect.none
+            )
+
+        UserSubmittedForm ->
+            ( { model | isSubmitting = True }
             , Effect.none
             )
 
@@ -116,6 +147,8 @@ viewUsernameInput model =
                 [ Attr.class "input"
                 , Attr.type_ "text"
                 , Attr.placeholder "neutron-55"
+                , Attr.value model.username
+                , Html.Events.onInput (UserUpdatedField Username)
                 ]
                 []
             , Html.span
@@ -140,6 +173,8 @@ viewNameInput model =
                 [ Attr.class "input"
                 , Attr.type_ "text"
                 , Attr.placeholder "Jimmy Neutron"
+                , Attr.value model.name
+                , Html.Events.onInput (UserUpdatedField Name)
                 ]
                 []
             ]
@@ -156,6 +191,8 @@ viewPasswordInput model =
             [ Html.input
                 [ Attr.class "input"
                 , Attr.type_ "password"
+                , Attr.value model.password
+                , Html.Events.onInput (UserUpdatedField Password)
                 ]
                 []
             ]
@@ -169,7 +206,11 @@ viewSubmitButton model =
         [ Html.div
             [ Attr.class "control" ]
             [ Html.button
-                [ Attr.class "button is-link" ]
+                [ Attr.class "button is-link"
+                , Attr.disabled model.isSubmitting
+                , Attr.classList [ ( "is-loading", model.isSubmitting ) ]
+                , Html.Events.onClick UserSubmittedForm
+                ]
                 [ Html.text "Sign Up" ]
             ]
         ]
