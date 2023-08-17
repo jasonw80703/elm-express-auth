@@ -2,7 +2,9 @@ module Pages.SignUp exposing (Model, Msg, page)
 
 import Api.Me
 import Api.SignUp
+import Auth.Action
 import Data.User exposing (User)
+import Dict
 import Effect exposing (Effect)
 import Html exposing (Html)
 import Html.Attributes as Attr
@@ -11,15 +13,16 @@ import Html.Extra as Html
 import Http
 import Page exposing (Page)
 import Route exposing (Route)
+import Route.Path
 import Shared
 import Shared.NavHeader as NavHeader
 import View exposing (View)
 
 
 page : Shared.Model -> Route () -> Page Model Msg
-page _ _ =
+page shared _ =
     Page.new
-        { init = init
+        { init = init shared
         , update = update
         , subscriptions = subscriptions
         , view = view
@@ -40,8 +43,8 @@ type alias Model =
     }
 
 
-init : () -> ( Model, Effect Msg )
-init () =
+init : Shared.Model -> () -> ( Model, Effect Msg )
+init shared () =
     ( { apiErrors = []
       , formErrors = []
       , isSubmitting = False
@@ -49,7 +52,17 @@ init () =
       , password = ""
       , username = ""
       }
-    , Effect.none
+    , case shared.user of
+        Just user ->
+            -- Redirect user to their profile if they're signed in and are tyring to access /sign-up
+            Effect.replaceRoute
+                { path = Route.Path.Users_Id_ { id = user.id }
+                , query = Dict.empty
+                , hash = Nothing
+                }
+
+        Nothing ->
+            Effect.none
     )
 
 

@@ -7,6 +7,7 @@ port module Effect exposing
     , saveUser, clearUser
     , saveToken, clearToken
     , map, toCmd
+    , performIf
     )
 
 {-|
@@ -247,3 +248,12 @@ clearToken =
         { key = "token"
         , value = Encode.null
         }
+
+
+performIf : Bool -> Effect msg -> Effect msg
+performIf condition effect =
+    if condition then
+        effect
+
+    else
+        none
