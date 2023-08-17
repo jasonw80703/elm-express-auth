@@ -1,11 +1,14 @@
 module Pages.SignUp exposing (Model, Msg, page)
 
+import Api.Me
 import Api.SignUp
+import Data.User exposing (User)
 import Effect exposing (Effect)
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events
 import Html.Extra as Html
+import Http
 import Page exposing (Page)
 import Route exposing (Route)
 import Shared
@@ -55,7 +58,8 @@ init () =
 
 
 type Msg
-    = SubmitDone (Result (List Api.SignUp.Error) Api.SignUp.Data)
+    = MeFetched String (Result Http.Error User)
+    | SubmitDone (Result (List Api.SignUp.Error) Api.SignUp.Data)
     | UserSubmittedForm
     | UserUpdatedField Field String
 
@@ -69,9 +73,32 @@ type Field
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        SubmitDone (Ok { token, user }) ->
+        MeFetched token (Ok user) ->
             ( { model | isSubmitting = False }
-            , Effect.signIn { token = token, user = user }
+            , Effect.signIn
+                { token = token
+                , user = user
+                }
+            )
+
+        MeFetched _ (Err _) ->
+            let
+                error : Api.SignUp.Error
+                error =
+                    { field = Nothing 
+                    , message = "User couldn't be found"
+                    }
+            in
+            ( { model | isSubmitting = False, apiErrors = [ error ] }
+            , Effect.signOut
+            )
+
+        SubmitDone (Ok { token }) ->
+            ( model
+            , Api.Me.get
+                { onResponse = MeFetched token
+                , token = token
+                }
             )
 
         SubmitDone (Err errors) ->

@@ -203,6 +203,7 @@ signOut =
     SendSharedMsg Shared.Msg.SignOut
 
 
+-- NB: TODO: we probably don't want to store this in local storage
 port sendToLocalStorage :
     { key : String
     , value : Encode.Value
@@ -210,17 +211,23 @@ port sendToLocalStorage :
     -> Cmd msg
 
 
-saveUser : String -> Effect msg
-saveUser token =
+saveUser : { token : String, user : User } -> Effect msg
+saveUser options =
     SendToLocalStorage
-        { key = "token"
-        , value = Encode.string token
+        { key = "user"
+        , value =
+            Encode.object
+                [ ( "token", Encode.string options.token )
+                , ( "id", Encode.string options.user.id )
+                , ( "name", Encode.string options.user.name )
+                , ( "username", Encode.string options.user.username )
+                ]
         }
 
 
 clearUser : Effect msg
 clearUser =
     SendToLocalStorage
-        { key = "token"
+        { key = "user"
         , value = Encode.null
         }

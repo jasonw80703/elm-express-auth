@@ -12,9 +12,10 @@ module Shared exposing
 
 -}
 
+import Data.User exposing (User, decodeUser)
 import Dict
 import Effect exposing (Effect)
-import Json.Decode as Decode
+import Json.Decode
 import Route exposing (Route)
 import Route.Path
 import Shared.Model
@@ -27,13 +28,15 @@ import Shared.Msg
 
 type alias Flags =
     { token : Maybe String
+    , user : Maybe User
     }
 
 
-decoder : Decode.Decoder Flags
+decoder : Json.Decode.Decoder Flags
 decoder =
-    Decode.map Flags
-        (Decode.field "token" (Decode.maybe Decode.string))
+    Json.Decode.map2 Flags
+        (Json.Decode.field "token" (Json.Decode.maybe Json.Decode.string))
+        (Json.Decode.field "user" (Json.Decode.maybe decodeUser))
 
 
 
@@ -44,7 +47,7 @@ type alias Model =
     Shared.Model.Model
 
 
-init : Result Decode.Error Flags -> Route () -> ( Model, Effect Msg )
+init : Result Json.Decode.Error Flags -> Route () -> ( Model, Effect Msg )
 init flagsResult route =
     let
         flags : Flags
@@ -52,6 +55,7 @@ init flagsResult route =
             flagsResult
                 |> Result.withDefault
                     { token = Nothing
+                    , user = Nothing
                     }
     in
     ( { user = Nothing, token = flags.token }
@@ -74,11 +78,11 @@ update route msg model =
             ( { model | user = Just user, token = Just token }
             , Effect.batch
                 [ Effect.pushRoute
-                    { path = Route.Path.Users_Id_ { id = user.id } -- TODO get ID somewhere
+                    { path = Route.Path.Users_Id_ { id = user.id }
                     , query = Dict.empty
                     , hash = Nothing
                     }
-                , Effect.saveUser token
+                , Effect.saveUser { token = token, user = user }
                 ]
             )
 

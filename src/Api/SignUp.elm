@@ -4,22 +4,18 @@ import Effect exposing (Effect)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
-import Data.User exposing (User, decodeUser)
--- import Utils.Date as Date
 
 
 
 type alias Data =
     { token : String
-    , user : User
     }
 
 
 decoder : Decoder Data
 decoder =
-    Decode.map2 Data
+    Decode.map Data
         (Decode.field "token" Decode.string)
-        (Decode.field "user" decodeUser)
 
 
 type alias Error =

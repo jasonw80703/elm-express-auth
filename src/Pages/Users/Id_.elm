@@ -1,5 +1,6 @@
 module Pages.Users.Id_ exposing (Model, Msg, page)
 
+import Auth
 import Effect exposing (Effect)
 import Route exposing (Route)
 import Html
@@ -8,8 +9,8 @@ import Shared
 import View exposing (View)
 
 
-page : Shared.Model -> Route { id : String } -> Page Model Msg
-page shared route =
+page : Auth.User -> Shared.Model -> Route { id : String } -> Page Model Msg
+page user shared route =
     Page.new
         { init = init
         , update = update
