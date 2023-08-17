@@ -6,20 +6,20 @@ import jwt from 'jsonwebtoken';
 const router = Router();
 
 // GET all users
-router.get('/', async (req, res) => {
-  const users = await User.find();
-  return res.status(200).json(
-    users.map(userSerializer)
-  );
-});
+// router.get('/', async (req, res) => {
+//   const users = await User.find();
+//   return res.status(200).json(
+//     users.map(userSerializer)
+//   );
+// });
 
 // GET user by id
-router.get('/:userId', async (req, res) => {
-  const user = await User.findById(req.params.userId);
-  if (!user) { return res.status(404).send({ message: 'User not found!' })}
+// router.get('/:userId', async (req, res) => {
+//   const user = await User.findById(req.params.userId);
+//   if (!user) { return res.status(404).send({ message: 'User not found!' })}
 
-  return res.status(200).send(userSerializer(user));
-});
+//   return res.status(200).send(userSerializer(user));
+// });
 
 // Login with username and password
 // TODO: move to index?
@@ -99,7 +99,6 @@ router.post('/sign-up', async (req, res) => {
   const saved = await user.save();
   const token = generateAccessToken({ username: user.username });
   return res.status(201).json({
-    user: userSerializer(saved),
     token: token
   });
 });

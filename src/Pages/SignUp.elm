@@ -54,7 +54,7 @@ init shared () =
       }
     , case shared.user of
         Just user ->
-            -- Redirect user to their profile if they're signed in and are tyring to access /sign-up
+            -- Redirect user to their profile if they're signed in and are trying to access /sign-up
             Effect.replaceRoute
                 { path = Route.Path.Users_Id_ { id = user.id }
                 , query = Dict.empty

@@ -17,6 +17,9 @@ $ elm-land server
 ```
 
 # TODO
-- access token
-- access token expiry
-- local storage save token
+- ~~access token~~
+- ~~access token expiry~~
+- ~~local storage save token~~
+- login flow
+- profile page
+- ~~signout~~
