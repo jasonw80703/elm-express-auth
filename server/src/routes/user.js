@@ -42,17 +42,20 @@ router.post('/login', async (req, res) => {
   if (errors.length > 0) { return res.status(400).json({ errors }) }
 
   const user = await User.findOne({ username: req.body.username });
-  if (!user) { return res.status(404).send({ message: 'User not found!' })}
+  if (!user) { return res.status(404).send({ errors: [ { message: 'User not found!' } ] })};
 
   user.comparePassword(req.body.password, (err, isMatch) => {
     if (err) {
-      return res.status(500).send(err);
+      return res.status(500).send({ errors: [ { message: err } ] });
     }
 
     if (isMatch) {
-      return res.status(200).send(userSerializer(user));
+      const token = generateAccessToken({ username: user.username });
+      return res.status(200).json({
+        token: token
+      });
     } else {
-      return res.status(401).send({ message: 'Invalid username or password.' })
+      return res.status(401).send({ errors: [ { message: 'Invalid username or password.' } ] });
     }
   });
 });

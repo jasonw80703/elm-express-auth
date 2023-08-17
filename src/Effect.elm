@@ -6,6 +6,7 @@ port module Effect exposing
     , signIn, signOut
     , saveUser, clearUser
     , saveToken, clearToken
+    , redirectToUsersIdPage
     , map, toCmd
     , performIf
     )
@@ -203,6 +204,21 @@ signIn options =
 signOut : Effect msg
 signOut =
     SendSharedMsg Shared.Msg.SignOut
+
+
+redirectToUsersIdPage : Maybe User -> Effect msg
+redirectToUsersIdPage sharedUser =
+    case sharedUser of
+        Just user ->
+            -- Redirect user to their profile if they're signed in and are trying to access /sign-up
+            replaceRoute
+                { path = Route.Path.Users_Id_ { id = user.id }
+                , query = Dict.empty
+                , hash = Nothing
+                }
+
+        Nothing ->
+            none
 
 
 -- NB: TODO: we probably don't want to store this in local storage

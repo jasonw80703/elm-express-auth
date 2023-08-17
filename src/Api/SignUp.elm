@@ -1,6 +1,7 @@
-module Api.SignUp exposing (Data, Error, postUser, errorToString)
+module Api.SignUp exposing (Data, postUser)
 
 import Effect exposing (Effect)
+import Data.Error exposing (ApiError, apiErrorsDecoder)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
@@ -18,15 +19,9 @@ decoder =
         (Decode.field "token" Decode.string)
 
 
-type alias Error =
-    { message : String
-    , field : Maybe String
-    }
-
-
 -- TODO: create Endpoints or Api module with base URL and stuff
 postUser :
-    { onResponse : Result (List Error) Data -> msg
+    { onResponse : Result (List ApiError) Data -> msg
     , username : String
     , name : String
     , password : String
@@ -56,7 +51,7 @@ postUser options =
     Effect.sendCmd cmd
 
 
-handleHttpResponse : Http.Response String -> Result (List Error) Data
+handleHttpResponse : Http.Response String -> Result (List ApiError) Data
 handleHttpResponse response =
     case response of
         Http.BadUrl_ _ ->
@@ -81,7 +76,7 @@ handleHttpResponse response =
                 ]
 
         Http.BadStatus_ { statusCode } body ->
-            case Decode.decodeString errorsDecoder body of
+            case Decode.decodeString apiErrorsDecoder body of
                 Ok errors ->
                     Err errors
 
@@ -103,20 +98,3 @@ handleHttpResponse response =
                           , field = Nothing
                           }
                         ]
-
-
-errorsDecoder : Decode.Decoder (List Error)
-errorsDecoder =
-    Decode.field "errors" (Decode.list errorDecoder)
-
-
-errorDecoder : Decode.Decoder Error
-errorDecoder =
-    Decode.map2 Error
-        (Decode.field "message" Decode.string)
-        (Decode.field "field" (Decode.maybe Decode.string))
-
-
-errorToString : Error -> String
-errorToString error =
-    error.message

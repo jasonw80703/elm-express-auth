@@ -2,9 +2,8 @@ module Pages.SignUp exposing (Model, Msg, page)
 
 import Api.Me
 import Api.SignUp
-import Auth.Action
+import Data.Error exposing (ApiError, apiErrorToString)
 import Data.User exposing (User)
-import Dict
 import Effect exposing (Effect)
 import Html exposing (Html)
 import Html.Attributes as Attr
@@ -13,7 +12,6 @@ import Html.Extra as Html
 import Http
 import Page exposing (Page)
 import Route exposing (Route)
-import Route.Path
 import Shared
 import Shared.NavHeader as NavHeader
 import View exposing (View)
@@ -34,7 +32,7 @@ page shared _ =
 
 
 type alias Model =
-    { apiErrors : List Api.SignUp.Error
+    { apiErrors : List ApiError
     , formErrors : List String
     , isSubmitting : Bool
     , name : String
@@ -52,17 +50,7 @@ init shared () =
       , password = ""
       , username = ""
       }
-    , case shared.user of
-        Just user ->
-            -- Redirect user to their profile if they're signed in and are trying to access /sign-up
-            Effect.replaceRoute
-                { path = Route.Path.Users_Id_ { id = user.id }
-                , query = Dict.empty
-                , hash = Nothing
-                }
-
-        Nothing ->
-            Effect.none
+    , Effect.redirectToUsersIdPage shared.user
     )
 
 
@@ -72,7 +60,7 @@ init shared () =
 
 type Msg
     = MeFetched String (Result Http.Error User)
-    | SubmitDone (Result (List Api.SignUp.Error) Api.SignUp.Data)
+    | SubmitDone (Result (List ApiError) Api.SignUp.Data)
     | UserSubmittedForm
     | UserUpdatedField Field String
 
@@ -96,7 +84,7 @@ update msg model =
 
         MeFetched _ (Err _) ->
             let
-                error : Api.SignUp.Error
+                error : ApiError
                 error =
                     { field = Nothing 
                     , message = "User couldn't be found"
@@ -332,8 +320,8 @@ viewApiErrors model =
         |> Html.viewIf (List.length model.apiErrors > 0)
 
 
-viewApiError : Api.SignUp.Error -> Html Msg
+viewApiError : ApiError -> Html Msg
 viewApiError error =
     Html.li
         []
-        [ Html.text (Api.SignUp.errorToString error) ]
+        [ Html.text (apiErrorToString error) ]
