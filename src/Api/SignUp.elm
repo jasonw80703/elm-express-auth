@@ -1,10 +1,10 @@
-module Api.SignUp exposing (Data, User, Error, postUser, errorToString)
+module Api.SignUp exposing (Data, Error, postUser, errorToString)
 
-import Date exposing (Date)
 import Effect exposing (Effect)
 import Http
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
+import Data.User exposing (User, decodeUser)
 -- import Utils.Date as Date
 
 
@@ -15,26 +15,11 @@ type alias Data =
     }
 
 
-type alias User =
-    { name : String
-    , username : String
-    , createdAt : String -- TODO: Date?
-    }
-
-
 decoder : Decoder Data
 decoder =
     Decode.map2 Data
         (Decode.field "token" Decode.string)
         (Decode.field "user" decodeUser)
-
-
-decodeUser : Decoder User
-decodeUser =
-    Decode.map3 User
-        (Decode.field "name" Decode.string)
-        (Decode.field "username" Decode.string)
-        (Decode.field "createdAt" Decode.string)
 
 
 type alias Error =

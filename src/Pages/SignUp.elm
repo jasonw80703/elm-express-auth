@@ -69,10 +69,9 @@ type Field
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        SubmitDone (Ok data) ->
+        SubmitDone (Ok { token, user }) ->
             ( { model | isSubmitting = False }
-            , Effect.none
-              -- TODO do something
+            , Effect.signIn { token = token, user = user }
             )
 
         SubmitDone (Err errors) ->
