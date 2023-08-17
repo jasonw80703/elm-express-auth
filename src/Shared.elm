@@ -58,7 +58,7 @@ init flagsResult route =
                     , user = Nothing
                     }
     in
-    ( { user = Nothing, token = flags.token }
+    ( { user = flags.user, token = flags.token }
     , Effect.none
     )
 
@@ -82,13 +82,17 @@ update route msg model =
                     , query = Dict.empty
                     , hash = Nothing
                     }
-                , Effect.saveUser { token = token, user = user }
+                , Effect.saveUser { user = user }
+                , Effect.saveToken { token = token }
                 ]
             )
 
         Shared.Msg.SignOut ->
             ( { model | user = Nothing, token = Nothing }
-            , Effect.clearUser
+            , Effect.batch
+                [ Effect.clearUser
+                , Effect.clearToken
+                ]
             )
 
 

@@ -14,5 +14,5 @@ own file, so they can be imported by `Effect.elm`
 
 -}
 type Msg
-    = SignIn { token : String, user : User } -- TODO: do we need to store user in shared?
+    = SignIn { token : String, user : User }
     | SignOut

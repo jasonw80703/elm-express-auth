@@ -5,6 +5,7 @@ port module Effect exposing
     , pushRoute, replaceRoute, loadExternalUrl
     , signIn, signOut
     , saveUser, clearUser
+    , saveToken, clearToken
     , map, toCmd
     )
 
@@ -211,14 +212,13 @@ port sendToLocalStorage :
     -> Cmd msg
 
 
-saveUser : { token : String, user : User } -> Effect msg
+saveUser : { user : User } -> Effect msg
 saveUser options =
     SendToLocalStorage
         { key = "user"
         , value =
             Encode.object
-                [ ( "token", Encode.string options.token )
-                , ( "id", Encode.string options.user.id )
+                [ ( "id", Encode.string options.user.id )
                 , ( "name", Encode.string options.user.name )
                 , ( "username", Encode.string options.user.username )
                 ]
@@ -229,5 +229,21 @@ clearUser : Effect msg
 clearUser =
     SendToLocalStorage
         { key = "user"
+        , value = Encode.null
+        }
+
+
+saveToken : { token : String } -> Effect msg
+saveToken options =
+    SendToLocalStorage
+        { key = "token"
+        , value = Encode.string options.token
+        }
+
+
+clearToken : Effect msg
+clearToken =
+    SendToLocalStorage
+        { key = "token"
         , value = Encode.null
         }

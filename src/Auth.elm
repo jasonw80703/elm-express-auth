@@ -1,6 +1,7 @@
 module Auth exposing (User, onPageLoad, viewLoadingPage)
 
 import Auth.Action
+import Data.User
 import Dict
 import Route exposing (Route)
 import Route.Path
@@ -10,6 +11,7 @@ import View exposing (View)
 
 type alias User =
     { token : String
+    , user : Data.User.User
     }
 
 
@@ -17,13 +19,14 @@ type alias User =
 -}
 onPageLoad : Shared.Model -> Route () -> Auth.Action.Action User
 onPageLoad shared route =
-    case shared.token of
-        Just token ->
+    case Debug.log "bruH" (shared.token, shared.user) of
+        (Just token, Just user) ->
             Auth.Action.loadPageWithUser
-                { token = token -- TODO: does this need to be user?
+                { token = token
+                , user = user
                 }
 
-        Nothing ->
+        (_, _) ->
             Auth.Action.pushRoute
                 { path = Route.Path.SignIn
                 , query =
