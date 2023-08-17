@@ -3,6 +3,6 @@ import user from './user';
 
 const router = express.Router();
 
-router.use('/users', user)
+router.use('/users', user);
 
-module.exports = router
+module.exports = router;

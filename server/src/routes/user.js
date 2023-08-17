@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import User from '../models/user';
 import userSerializer from '../serializers/user';
+import jwt from 'jsonwebtoken';
 
 const router = Router();
 
@@ -96,7 +97,16 @@ router.post('/sign-up', async (req, res) => {
     ...req.body
   });
   const saved = await user.save();
-  return res.status(201).json(userSerializer(saved));
+  const token = generateAccessToken({ username: user.username });
+  return res.status(201).json({
+    user: userSerializer(saved),
+    token: token
+  });
 });
+
+// https://www.digitalocean.com/community/tutorials/nodejs-jwt-expressjs
+const generateAccessToken = (username) => {
+  return jwt.sign(username, process.env.SECRET_TOKEN, { expiresIn: '1800s' });
+}
 
 export default router;

@@ -7,7 +7,7 @@ import models, { connectDb } from './models';
 const app = express();
 app.use(cors());
 app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', routes)
 
@@ -15,6 +15,7 @@ const eraseDatabaseOnSync = true;
 
 connectDb().then(async () => {
   if (eraseDatabaseOnSync) {
+    console.log('Destroying all data and seeding new data');
     await Promise.all([
       models.User.deleteMany({}),
     ]);
