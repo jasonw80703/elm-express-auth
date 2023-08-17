@@ -33,6 +33,7 @@ page shared route =
 
 type alias Model =
     { apiErrors : List ApiError
+    , formErrors : List String
     , isSubmitting : Bool
     -- errors : List String
     , password : String
@@ -43,6 +44,7 @@ type alias Model =
 init : Shared.Model -> () -> ( Model, Effect Msg )
 init shared () =
     ( { apiErrors = []
+      , formErrors = []
       , isSubmitting = False
       , password = ""
       , username = ""
@@ -82,7 +84,7 @@ update msg model =
             let
                 error : ApiError
                 error =
-                    { field = Nothing 
+                    { field = ""
                     , message = "Unexpected error!"
                     }
             in
@@ -104,12 +106,32 @@ update msg model =
             )
 
         SubmittedForm ->
-            ( { model | isSubmitting = True }
-            , Api.SignIn.postLogin
-                { onResponse = SubmitDone
-                , username = model.username
-                , password = model.password
-                }
+            let
+                validForm : Bool
+                validForm =
+                    model.username
+                        /= ""
+                        && model.password
+                        /= ""
+
+                newModel : Model
+                newModel =
+                    if validForm then
+                        { model | isSubmitting = True, apiErrors = [], formErrors = [] }
+
+                    else
+                        { model | isSubmitting = False, apiErrors = [], formErrors = [ "Please fill out all fields" ] }
+            in
+            ( newModel
+            , if validForm then
+                Api.SignIn.postLogin
+                    { onResponse = SubmitDone
+                    , username = model.username
+                    , password = model.password
+                    }
+            
+              else
+                Effect.none
             )
         
         UserUpdatedField Password val ->
@@ -173,6 +195,8 @@ viewForm model =
         [ viewUsernameInput model
         , viewPasswordInput model
         , viewSubmitButton model
+        , viewFormErrors model
+        , viewApiErrors model
         ]
 
 
@@ -227,3 +251,39 @@ viewSubmitButton model =
                 [ Html.text "Login" ]
             ]
         ]
+
+
+viewFormErrors : Model -> Html Msg
+viewFormErrors model =
+    Html.div
+        []
+        [ Html.ul
+            [ Attr.class "notification is-danger" ]
+            (List.map
+                (\error ->
+                    Html.li
+                        []
+                        [ Html.text error ]
+                )
+                model.formErrors
+            )
+        ]
+        |> Html.viewIf (List.length model.formErrors > 0)
+
+
+viewApiErrors : Model -> Html Msg
+viewApiErrors model =
+    Html.div
+        []
+        [ Html.ul
+            [ Attr.class "notification is-danger" ]
+            (List.map viewApiError model.apiErrors)
+        ]
+        |> Html.viewIf (List.length model.apiErrors > 0)
+
+
+viewApiError : ApiError -> Html Msg
+viewApiError error =
+    Html.li
+        []
+        [ Html.text (apiErrorToString error) ]

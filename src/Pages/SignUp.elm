@@ -86,7 +86,7 @@ update msg model =
             let
                 error : ApiError
                 error =
-                    { field = Nothing 
+                    { field = "" 
                     , message = "User couldn't be found"
                     }
             in

@@ -57,21 +57,21 @@ handleHttpResponse response =
         Http.BadUrl_ _ ->
             Err
                 [ { message = "Unexpected URL format"
-                  , field = Nothing
+                  , field = ""
                   }
                 ]
 
         Http.Timeout_ ->
             Err
                 [ { message = "Request timed out, please try again"
-                  , field = Nothing
+                  , field = ""
                   }
                 ]
 
         Http.NetworkError_ ->
             Err
                 [ { message = "Could not connect, please try again"
-                  , field = Nothing
+                  , field = ""
                   }
                 ]
 
@@ -83,7 +83,7 @@ handleHttpResponse response =
                 Err _ ->
                     Err
                         [ { message = "Something unexpected happened" 
-                          , field = Nothing
+                          , field = ""
                           }
                         ]
 
@@ -95,6 +95,6 @@ handleHttpResponse response =
                 Err _ ->
                     Err
                         [ { message = "Something unexpected happened"
-                          , field = Nothing
+                          , field = ""
                           }
                         ]
