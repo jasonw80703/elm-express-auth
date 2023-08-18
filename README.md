@@ -20,6 +20,7 @@ $ elm-land server
 - ~~access token~~
 - ~~access token expiry~~
 - ~~local storage save token~~
-- login flow
-- profile page
+- ~~login flow~~
 - ~~signout~~
+- profile page
+  - if profile page ID is not current users, then show different permission
