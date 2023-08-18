@@ -1,4 +1,4 @@
-# Board Game Tracker
+# Elm/Express Auth
 
 Built with `elm-land`.
 
@@ -15,12 +15,3 @@ $ npm install
 ```
 $ elm-land server
 ```
-
-# TODO
-- ~~access token~~
-- ~~access token expiry~~
-- ~~local storage save token~~
-- ~~login flow~~
-- ~~signout~~
-- profile page
-  - if profile page ID is not current users, then show different permission

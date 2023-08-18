@@ -1,4 +1,4 @@
-# Board Game Tracker
+# NodeJS/Express/MongoDB
 
 Express backend with MongoDB.
 

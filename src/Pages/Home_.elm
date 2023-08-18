@@ -7,7 +7,7 @@ import View exposing (View)
 
 page : View msg
 page =
-    { title = "Board Game Tracker"
+    { title = "App"
     , body =
         [ Html.div
             [ Attr.class "m-6" ]
@@ -17,10 +17,10 @@ page =
                     [ Attr.class "" ]
                     [ Html.p
                         [ Attr.class "title" ]
-                        [ Html.text "Board Game Tracker" ]
+                        [ Html.text "App Title" ]
                     , Html.p
                         [ Attr.class "subtitle" ]
-                        [ Html.text "Track your board games with friends!" ]
+                        [ Html.text "App Subtitle" ]
                     ]
                 ]
             , Html.div
